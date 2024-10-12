@@ -1,26 +1,14 @@
 import User from '../models/user.js';
-import bcrypt from 'bcrypt';
-
-const registerUser = async (req, res) => {
-  console.log('Received request body:', req.body);
-  console.log('Content-Type:', req.get('Content-Type'));
-
-  const { email, password, role } = req.body;
-
-  console.log('Destructured values:');
-  console.log('email:', email);
-  console.log('password:', password);
-  console.log('role:', role);
-
-  if (!email || !password || !role) {
-    console.log('Missing required fields');
-    return res.status(400).json({ message: 'Please provide all required fields' });
-  }
-
+import bcrypt from 'bcryptjs';
+export const registerUser = async (req, res) => {
   try {
+    console.log('registerUser function called');
+    console.log('Request Body:', req.body);
+
+    const { email, password, role } = req.body;
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log('User already exists:', email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
@@ -34,18 +22,13 @@ const registerUser = async (req, res) => {
 
     await newUser.save();
 
-    console.log('User registered successfully:', newUser);
-
-    return res.status(201).json({
-      _id: newUser._id,
-      email: newUser.email,
-      role: newUser.role,
-      createdAt: newUser.createdAt,
-    });
+    console.log('User saved:', newUser);
+    res.status(201).json({ message: 'User registered successfully!', user: newUser });
   } catch (error) {
     console.error('Error in registerUser:', error);
-    return res.status(500).json({ message: 'Server error' });
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validation error', errors: error.errors });
+    }
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-export { registerUser, registerUser as createUser };

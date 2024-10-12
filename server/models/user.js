@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+// models/userModel.js
+import mongoose from 'mongoose';
 
-// Define the User schema
 const userSchema = new mongoose.Schema(
   {
     email: {
@@ -20,11 +20,10 @@ const userSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, 
+    timestamps: true, // Automatically adds createdAt and updatedAt fields
   }
 );
 
 const User = mongoose.model('User', userSchema);
 
-// Use export default for ES Module syntax
 export default User;
