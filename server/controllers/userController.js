@@ -1,11 +1,30 @@
 import User from '../models/user.js';
 import bcrypt from 'bcryptjs';
+
+// Helper function for input validation
+const validateUserInput = ({ email, password }) => {
+  const errors = {};
+  if (!email || !email.includes('@')) {
+    errors.email = 'Invalid email format';
+  }
+  if (!password || password.length < 6) {
+    errors.password = 'Password must be at least 6 characters long';
+  }
+  return errors;
+};
+
 export const registerUser = async (req, res) => {
   try {
     console.log('registerUser function called');
     console.log('Request Body:', req.body);
 
     const { email, password, role } = req.body;
+
+    // Validate input
+    const errors = validateUserInput(req.body);
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({ message: 'Validation error', errors });
+    }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -23,7 +42,7 @@ export const registerUser = async (req, res) => {
     await newUser.save();
 
     console.log('User saved:', newUser);
-    res.status(201).json({ message: 'User registered successfully!', user: newUser });
+    res.status(201).json({ message: 'User registered successfully!', user: { email: newUser.email, role: newUser.role } });
   } catch (error) {
     console.error('Error in registerUser:', error);
     if (error.name === 'ValidationError') {
