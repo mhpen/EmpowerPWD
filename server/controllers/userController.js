@@ -13,6 +13,7 @@ const validateUserInput = ({ email, password }) => {
   return errors;
 };
 
+// Create Account 
 export const registerUser = async (req, res) => {
   try {
     console.log('registerUser function called');
@@ -50,4 +51,36 @@ export const registerUser = async (req, res) => {
     }
     res.status(500).json({ message: 'Server error', error: error.message });
   }
+};
+
+
+// Login User
+export const logUser = async (req, res) => {
+
+  const {email, password} = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  if (!password) {
+    return res.status(400).json({ message: 'Password is required' });
+  }
+
+  const userInfo = await User.findOne({email: email});
+
+  if(!userInfo) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const isMatch = await bcrypt.compare(password, userInfo.password);
+  
+  if (userInfo.email == email && isMatch){
+    return res.status(200).json({ message: 'Login successful', user: { email: userInfo.email, role: userInfo.role } });
+  }
+
+  if(!isMatch) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+
 };
