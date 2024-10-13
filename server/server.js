@@ -3,7 +3,9 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors'; // Add this import
 
+// ----------------------------- Import routes -----------------------------
 import userRoutes from './routes/userRoutes.js';
+import logRoutes from './routes/logRoutes.js';
 import jobRoutes from './routes/jobRoute.js'; 
 
 dotenv.config();
@@ -21,7 +23,9 @@ if (!mongoURI) {
   process.exit(1);
 }
 
-mongoose.connect(mongoURI)
+// ---------------------------------------- Start the server ----------------------------------------
+
+mongoose.connect(mongoURI) //MongoDB connection
   .then(() => {
     console.log('Connected to MongoDB');
     console.log('Database name:', mongoose.connection.name);
@@ -30,29 +34,34 @@ mongoose.connect(mongoURI)
     console.error('Could not connect to MongoDB', err);
     process.exit(1);
   });
+
 // Use the user routes\
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} request to ${req.url}`);
   console.log('Request body:', req.body);
   next();
+  
 });
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
+
 app.use('/api/users', userRoutes);
 app.use('/api/jobs', jobRoutes); 
+
 app.post('/test', (req, res) => {
   console.log('Test route hit');
   console.log('Request body:', req.body);
   res.json({ message: 'Test successful', receivedData: req.body });
 });
+
 // Test route
 app.get('/test', (req, res) => {
   res.send('Test route working');
 });
 
-
+// Log the environment variables
 const PORT = process.env.PORT || 5001; // Use the PORT from .env or default to 5001
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
