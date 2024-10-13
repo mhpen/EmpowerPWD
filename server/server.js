@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors'; // Add this import
 
 import userRoutes from './routes/userRoutes.js';
+import jobRoutes from './routes/jobRoute.js'; 
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!');
 });
 app.use('/api/users', userRoutes);
+app.use('/api/jobs', jobRoutes); 
 app.post('/test', (req, res) => {
   console.log('Test route hit');
   console.log('Request body:', req.body);
